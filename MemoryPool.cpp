@@ -603,11 +603,6 @@ namespace LYW_CODE
             return 0;
         }
 
-        if ((block = curDataBegin->block) == NULL)
-        {
-            return 0;
-        }
-
         //计算当前块所在ex
         return size(curDataBegin);
     }
