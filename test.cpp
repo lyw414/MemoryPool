@@ -4,6 +4,8 @@
 
 #include <pthread.h>
 
+#include <string>
+
 pthread_mutex_t lock;
 
 time_t poolTime;
@@ -84,12 +86,52 @@ void * test(void * xxx)
     return NULL;
 }
 
+class ss
+{
+private:
+    int a;
+    int b;
+
+public:
+    ss();
+
+    void xxx();
+};
+
+
+ss::ss()
+{
+    a = 1;
+    b = 2;
+}
+
+void ss::xxx()
+{
+    printf("%d %d\n", a,b);
+}
 
 int main()
 {
+
+
+
     pthread_mutex_init(&lock,NULL);
 
     mPool = new LYW_CODE::MemoryPool();
+    
+    std::string * str = mPool->New<std::string>("123456");
+
+    printf("%s\n", str->c_str());
+
+    *str += "222222";
+
+
+    printf("%s\n", str->c_str());
+
+    mPool->Delete<std::string>(str);
+
+
+    return 0;
 
     poolTime = 0;
     sysTime = 0;

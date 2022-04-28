@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <new>
 
 #include <stdio.h>
 
@@ -142,6 +143,31 @@ namespace LYW_CODE
          *              失败 0
          */
         unsigned long size(void * ptr);
+        
+        /**
+         * @brief       定位符创建对象
+         * 
+         * @return      成功    对象指针
+         *              失败    NULL
+         */
+        template <typename T, typename... Args>
+        T * New(Args ... args)
+        {
+            T * res = (T *)this->malloc(sizeof(T));
+            res = new(res) T(args...);
+            return res;
+        }
+
+        /**
+         * @brief        释放对象
+         *
+         */
+        template <typename T>
+        void Delete(T * ptr)
+        {
+            ptr->~T();
+            this->free(ptr);
+        }
     };
 }
 #endif
