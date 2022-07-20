@@ -1,0 +1,160 @@
+#ifndef __LYW_CODE_SIMPLE_MEMORY_POOL_DEFINE_HPP__
+#define __LYW_CODE_SIMPLE_MEMORY_POOL_DEFINE_HPP__
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define SIM_MEM_MAX_EX 32
+namespace LYW_CODE::SimpleMemoryPool
+{
+
+#pragma pack(1)
+    typedef enum _BlockST {
+        BLOCK_USE = 0,
+        BLOCK_FREE
+    } BlockST_e;
+
+    //申请大块
+    typedef struct _Block {
+        struct _Block * next;
+        struct _Block * pre;
+        BlockST_e st;
+        int ex;
+        int occupyCount;
+        int totalCount;
+        unsigned char data[0];
+    } Block_t;
+    
+    //用于分配的节点
+    typedef struct _Node {
+        Block_t * block;
+        struct _Node * next;
+        unsigned char data[0];
+    } Node_t;
+    
+    //节点包 减少归还次数
+    typedef struct _NodePackage {
+        Node_t * begin;
+        Node_t * end;
+        int count;
+        int ex;
+    } NodePackage_t;
+
+    //配置 -- 控制每个幂下的分配策略
+    typedef struct _CFG {
+        int reCount;
+        int allocateSize;
+    } CFG_t;
+#pragma pack()
+
+    class SingleList 
+    {
+    private:
+        typedef struct _Node {
+            struct _Node * next;
+            void * data;
+        } Node_t;
+
+    private:
+        Node_t * m_begin;
+        Node_t * m_end;
+        Node_t * m_free;
+        
+        int m_totalCount;
+        int m_occupyCount;
+
+    public:
+        SingleList()
+        {
+            m_totalCount = 0;
+            m_occupyCount = 0;
+
+            m_free = NULL;
+            m_begin = NULL;
+            m_end = NULL;
+
+        }
+
+        void Push(void * ptr)
+        {
+            Node_t * pNode = NULL;
+            m_occupyCount++;
+            if (m_free == NULL)
+            {
+                //申请一个节点
+                pNode = (Node_t *)::malloc(sizeof(Node_t));
+                m_totalCount++;
+            }
+            else
+            {
+                //空闲节点弹出
+                pNode = m_free;
+                m_free = m_free->next;
+            }
+            
+            //赋值
+            pNode->data = ptr;
+            pNode->next = NULL;
+            
+
+            //添加至占有节点
+            if (m_end == NULL)
+            {
+                m_end = m_begin = pNode;
+            }
+            else
+            {
+                m_end->next = pNode;
+                m_end = pNode;
+            }
+        }
+
+        void * Pop()
+        {
+            void * res = NULL;
+            Node_t * pNode = NULL;
+
+            if (m_begin != NULL)
+            {
+                m_occupyCount--;
+                res = m_begin->data;
+                pNode = m_begin;
+                m_begin = m_begin->next;
+                if (m_begin == NULL)
+                {
+                    m_end = NULL;
+                }
+
+                if (m_totalCount > m_occupyCount + 32)
+                {
+                    ::free(pNode);
+                    m_totalCount--;
+                }
+                else
+                {
+                    pNode->next = m_free;
+                    m_free = pNode;
+                }
+            }
+
+            return res;
+        }
+
+        void * Front()
+        {
+            if (m_begin == NULL)
+            {
+                return NULL;
+            }
+            else
+            {
+                return m_begin->data;
+            }
+
+        }
+    };
+
+}
+#endif
+ 

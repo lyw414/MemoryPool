@@ -1,4 +1,4 @@
 all:
-	g++ -O2 -o Test test.cpp MemoryPool.cpp -lpthread -I ./
+	g++ -Wall -O2 -std=c++98 -o Test test.cpp MemoryPool.cpp Register.cpp -lpthread -I ./
 debug:
-	g++ -g -o Test test.cpp MemoryPool.cpp -lpthread -I ./
+	g++ -g -std=c++98 -o Test test.cpp  -lpthread -I ./
