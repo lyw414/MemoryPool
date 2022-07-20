@@ -510,7 +510,7 @@ namespace LYW_CODE
             m_allocBlockArray[ex] = block;
 
         }
-
+        return;        
         //检查空闲率
         ::gettimeofday(&m_nowTime,NULL);
         if ((m_nowTime.tv_sec < m_lastClearTime.tv_sec) || (m_nowTime.tv_sec == m_lastClearTime.tv_sec && m_nowTime.tv_usec < m_lastClearTime.tv_usec))
@@ -525,9 +525,9 @@ namespace LYW_CODE
             return;
         }
 
-        return;
-
         ::memcpy(&m_lastClearTime,&m_nowTime, sizeof(timeval));
+        printf("Do free!\n");
+
         block = m_freeBlock;
         if (block != NULL)
         {
