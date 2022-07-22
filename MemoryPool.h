@@ -19,7 +19,12 @@ namespace LYW_CODE::SimpleMemoryPool
         pthread_mutex_t m_lock;
 
         SingleList m_revert[SIM_MEM_MAX_EX];
+        
+        Register ** m_register;
 
+        int m_registerSize;
+
+        CFG_t m_cfg[SIM_MEM_MAX_EX];
         
     private:
         Block_t * CreateBlock(int ex);
@@ -30,23 +35,8 @@ namespace LYW_CODE::SimpleMemoryPool
         
         Node_t * Apply(int ex);
         
-        inline int Exponent(unsigned long long number)
-        {
-            int ex = 0;
-            unsigned long long size = 1;
-            if (number == 0)
-            {
-                return ex;
-            }
+        int Exponent(unsigned long long number);
 
-            do
-            {
-                size = size << 1;
-                ex++;
-            } while (size < number);
-
-            return ex;
-        }
 
     public:
 
@@ -54,10 +44,9 @@ namespace LYW_CODE::SimpleMemoryPool
 
         ~MemoryPool();
 
-
         int Regist();
 
-        void UnRegist();
+        void UnRegist(int handle);
 
         void * Malloc (int handle, unsigned long long size);
 

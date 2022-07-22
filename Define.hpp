@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #define SIM_MEM_MAX_EX 32
+#define SIM_MEM_MIN_SIZE 8
 namespace LYW_CODE::SimpleMemoryPool
 {
 
@@ -22,7 +23,6 @@ namespace LYW_CODE::SimpleMemoryPool
         BlockST_e st;
         int ex;
         int occupyCount;
-        int totalCount;
         unsigned char data[0];
     } Block_t;
     
@@ -43,8 +43,25 @@ namespace LYW_CODE::SimpleMemoryPool
 
     //配置 -- 控制每个幂下的分配策略
     typedef struct _CFG {
-        int reCount;
-        int allocateSize;
+        //归还块上限 - 只读
+        int revertCount;
+        //申请块数量 - 只读
+        int nodeCount;
+        //数据块大小 - 只读
+        unsigned long long dataSize;
+
+        unsigned long long nodeSize;
+        //分配大小 - 只读
+        unsigned long long allocateSize; 
+        
+        int interval;
+
+        int totalFreeNodeCount;
+
+        int totalNodeCount;
+
+        int keepPercent;
+
     } CFG_t;
 #pragma pack()
 
@@ -53,6 +70,7 @@ namespace LYW_CODE::SimpleMemoryPool
     private:
         typedef struct _Node {
             struct _Node * next;
+            int count;
             void * data;
         } Node_t;
 
@@ -76,7 +94,7 @@ namespace LYW_CODE::SimpleMemoryPool
 
         }
 
-        void Push(void * ptr)
+        void Push(void * ptr, int count)
         {
             Node_t * pNode = NULL;
             m_occupyCount++;
@@ -95,6 +113,7 @@ namespace LYW_CODE::SimpleMemoryPool
             
             //赋值
             pNode->data = ptr;
+            pNode->count = count;
             pNode->next = NULL;
             
 
@@ -110,14 +129,16 @@ namespace LYW_CODE::SimpleMemoryPool
             }
         }
 
-        void * Pop()
+        void * Pop(int & count)
         {
             void * res = NULL;
             Node_t * pNode = NULL;
+            count = 0;
 
             if (m_begin != NULL)
             {
                 m_occupyCount--;
+                count = m_begin->count;
                 res = m_begin->data;
                 pNode = m_begin;
                 m_begin = m_begin->next;
@@ -141,14 +162,16 @@ namespace LYW_CODE::SimpleMemoryPool
             return res;
         }
 
-        void * Front()
+        void * Front(int & count)
         {
             if (m_begin == NULL)
             {
+                count = 0;
                 return NULL;
             }
             else
             {
+                count = m_begin->count;
                 return m_begin->data;
             }
 

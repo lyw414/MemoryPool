@@ -1,0 +1,53 @@
+#include "MemoryPool.h"
+
+
+void TestRegist()
+{
+    LYW_CODE::SimpleMemoryPool::MemoryPool pool;
+
+    int handle = 0;
+    
+    for (int iLoop = 0; iLoop < 46; iLoop++)
+    {
+        handle = pool.Regist();
+        printf("%d\n", handle);
+    }
+
+
+    for (int iLoop = 45; iLoop >= 0; iLoop--)
+    {
+        pool.UnRegist(iLoop);
+        printf("%d\n", iLoop);
+    }
+    for (int iLoop = 0; iLoop < 46; iLoop++)
+    {
+        handle = pool.Regist();
+        printf("%d\n", handle);
+    }
+
+
+
+}
+
+int main()
+{
+    LYW_CODE::SimpleMemoryPool::MemoryPool pool;
+
+    int handle = pool.Regist();
+
+    //TestRegist();
+    
+    void * ptr1 = pool.Malloc(handle, 222);
+    void * ptr2 = pool.Malloc(handle, 222);
+    void * ptr3 = pool.Malloc(handle, 222);
+    void * ptr4 = pool.Malloc(handle, 222);
+    void * ptr5 = pool.Malloc(handle, 222);
+
+    pool.Free(handle, ptr1);
+    pool.Free(handle, ptr2);
+    pool.Free(handle, ptr3);
+    pool.Free(handle, ptr4);
+    pool.Free(handle, ptr5);
+    return 0;
+}
+

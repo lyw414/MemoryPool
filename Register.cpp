@@ -106,10 +106,9 @@ namespace LYW_CODE::SimpleMemoryPool
                 m_revert[ex].begin = pNode;
             }
 
-            if (m_revert[ex].count >= 1024)
+            if (m_revert[ex].count >= m_memPool->m_cfg[ex].revertCount)
             {
                 m_memPool->Revert(m_revert[ex]);
-
                 m_revert[ex].begin = m_revert[ex].end = NULL;
                 m_revert[ex].count = 0;
             }
