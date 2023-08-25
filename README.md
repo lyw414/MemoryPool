@@ -11,6 +11,7 @@
     SimpleMemoryPool::GetInstance()->Free(ptr)
 ``` 
 # 总结
+* 线程单例模板仅支持Linux windows需要使用thread_local平替
 * SimpleMemoryPool 为线程单例，同一线程内使用Malloc 与 Free 不会上锁，使用预分配内存快速分配
 * A线程 Malloc B 线程 Free，Free时会进入线程块中，分配时发现线程块存在资源时，会线程安全回收，导致分配效率降低
 * 脏块策略尚未实现，既A线程释放了 SimpleMemoryPool, B线程持有了 A线程Malloc的内存；A线程会将该块交给进程内存管理处理，目前该功能尚未实现，进程内存管理直接free了脏块
