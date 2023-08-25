@@ -1,16 +1,15 @@
-#include "MemoryPool.h"
+#include "SimpleMemoryPool.h"
 #include <sys/time.h>
 #include <stdio.h>
 #include <list>
 #include <unistd.h>
+#include <stdlib.h>
 
 time_t poolTime;
 time_t sysTime;
 int count1;
 int count2;
 int allSize;
-
-LYW_CODE::SimpleMemoryPool::MemoryPool *  mPool;
 
 pthread_mutex_t lock;
 
@@ -33,8 +32,6 @@ void * test_free(void * xxx)
 
     std::list<void * >::iterator it;
 
-    int handle = mPool->Regist();
-    
     while(true)
     {
         if (!ptrList.empty())
@@ -69,7 +66,7 @@ void * test_free(void * xxx)
             else
             {
                 gettimeofday(&begin,NULL);
-                mPool->Free(handle, ptr);
+                LYW_CODE::SimpleMemoryPool::GetInstance()->Free(ptr);
                 gettimeofday(&end,NULL);
                 t += (end.tv_sec - begin.tv_sec) * 1000000 + (end.tv_usec - begin.tv_usec);
             }
@@ -112,8 +109,6 @@ void * test(void * xxx)
     void * ptr;
     std::list<void *> myList;
     srand(time(NULL));
-
-    int handle = mPool->Regist();
 
     if (tag == 0)
     {
@@ -207,7 +202,7 @@ void * test(void * xxx)
                     gettimeofday(&begin,NULL);
                     //ptr = mPool->Malloc(as + 1);
                     //ptr = mPool->Malloc(handle, allSize);
-                    ptr = mPool->Malloc(handle, as + 1);
+                    ptr = LYW_CODE::SimpleMemoryPool::GetInstance()->Malloc(as + 1);
                     //ptr = mPool->Malloc(allSize);
 
                     gettimeofday(&end,NULL);
@@ -256,7 +251,7 @@ void * test(void * xxx)
                     gettimeofday(&begin,NULL);
                     //ptr = mPool->Malloc(as + 1);
                     //ptr = mPool->Malloc(handle, allSize);
-                    ptr = mPool->Malloc(handle, as + 1);
+                    ptr = LYW_CODE::SimpleMemoryPool::GetInstance()->Malloc(as + 1);
                     //ptr = mPool->Malloc(allSize);
 
                     gettimeofday(&end,NULL);
@@ -273,7 +268,7 @@ void * test(void * xxx)
                 for(int index = 0; index < count2; index++ )
                 {
                     gettimeofday(&begin,NULL);
-                    mPool->Free(handle, array[index]);
+                    LYW_CODE::SimpleMemoryPool::GetInstance()->Free(array[index]);
                     gettimeofday(&end,NULL);
                     t += (end.tv_sec - begin.tv_sec) * 1000000 + (end.tv_usec - begin.tv_usec);
                 }
@@ -344,11 +339,6 @@ int main(int argc, char * argv[])
     {
         syncTag = atoi(argv[7]);
     }
-
-
-
-    mPool = new LYW_CODE::SimpleMemoryPool::MemoryPool() ;
-    //new LYW_CODE::SimpleMemoryPool(allSize, 1024 * 1024 * 10);
 
     pthread_t * h = (pthread_t *)::malloc(sizeof(pthread_t) *threadNum);
     pthread_t * h1 = (pthread_t *)::malloc(sizeof(pthread_t) * threadNum1);
